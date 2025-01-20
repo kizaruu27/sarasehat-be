@@ -2,10 +2,11 @@
   "name": "sarasehat-be",
   "version": "1.0.0",
   "description": "Backend server for sarasehat admin",
-  "main": "app.js",
+  "main": "./src/app.ts",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ."
+    "start": "nodemon --watch src --exec ts-node src/app.ts"
   },
   "author": "Dionovan Ramadhani",
   "license": "ISC",
@@ -15,5 +16,12 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "prisma": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
