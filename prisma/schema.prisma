@@ -8,17 +8,49 @@ datasource db {
 }
 
 model Item {
-  id           Int      @id @default(autoincrement())
-  itemName     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  itemCode     Int      @unique
-  itemCategory String
-  itemType     String
-  supplier     String
-  minStock     Int
-  maxStock     Int
-  currentStock Int
-  wacc         Int
-  sellingPrice Int
+  id             Int          @id @default(autoincrement())
+  itemName       String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  itemCode       Int          @unique
+  minStock       Int
+  maxStock       Int
+  currentStock   Int
+  wacc           Int
+  sellingPrice   Int
+  itemCategoryId Int
+  itemTypeId     Int?
+  supplierId     Int
+  itemCategory   ItemCategory @relation(fields: [itemCategoryId], references: [id])
+  itemType       itemType?    @relation(fields: [itemTypeId], references: [id])
+  supplier       Supplier     @relation(fields: [supplierId], references: [id])
+}
+
+model ItemCategory {
+  id       Int    @id @default(autoincrement())
+  category String
+  items    Item[]
+}
+
+model itemType {
+  id    Int    @id @default(autoincrement())
+  type  String
+  items Item[]
+}
+
+model Supplier {
+  id           Int    @id @default(autoincrement())
+  supplierName String
+  items        Item[]
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  itemId      Int
+  infoStockId Int
+  totalPrice  Int
+  status      String
+  paymentType String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
