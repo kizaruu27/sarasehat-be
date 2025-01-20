@@ -10,6 +10,8 @@ const PORT: string | number = process.env.PORT || 8000;
 
 // Update later
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/items", itemRoutes);
 

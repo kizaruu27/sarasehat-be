@@ -44,13 +44,28 @@ model Supplier {
   items        Item[]
 }
 
+// Item id set jadi many
 model Transaction {
-  id          String   @id @default(uuid())
-  itemId      Int
-  infoStockId Int
-  totalPrice  Int
-  status      String
-  paymentType String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String            @id @default(uuid())
+  itemId        Int
+  infoStockId   Int
+  totalPrice    Int
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  paymentTypeId Int
+  statusId      Int
+  payment       PaymentType       @relation(fields: [paymentTypeId], references: [id])
+  status        TransactionStatus @relation(fields: [statusId], references: [id])
+}
+
+model PaymentType {
+  id           Int           @id @default(autoincrement())
+  type         String
+  transactions Transaction[]
+}
+
+model TransactionStatus {
+  id           Int           @id @default(autoincrement())
+  status       String
+  transactions Transaction[]
 }
