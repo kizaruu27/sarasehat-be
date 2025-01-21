@@ -1,12 +1,20 @@
 import { Router } from "express";
-import { addNewItem, getAllItems } from "../controllers/itemsController";
+import {
+  addNewItem,
+  deleteItem,
+  getAllItems,
+  getItemById,
+} from "../controllers/itemsController";
 import multer from "multer";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const routes = Router();
-routes.get("/", getAllItems);
-routes.post("/", upload.none(), addNewItem);
-
+routes
+  .get("/", getAllItems)
+  .get("/:id", getItemById)
+  .post("/", addNewItem)
+  .delete("/:id", deleteItem);
+// routes.get("/:id", getItemById);
 export default routes;

@@ -6,7 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --watch src --exec ts-node src/app.ts"
+    "start": "nodemon --watch src --exec ts-node src/app.ts",
+    "prisma studio": "npx prisma studio",
+    "migrate": "npx prisma migrate dev"
   },
   "author": "Dionovan Ramadhani",
   "license": "ISC",

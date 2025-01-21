@@ -12,7 +12,7 @@ model Item {
   itemName       String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  itemCode       Int          @unique
+  itemCode       String       @unique
   minStock       Int
   maxStock       Int
   currentStock   Int
@@ -21,9 +21,29 @@ model Item {
   itemCategoryId Int
   itemTypeId     Int?
   supplierId     Int
+  infoStock      InfoStock?
   itemCategory   ItemCategory @relation(fields: [itemCategoryId], references: [id])
   itemType       itemType?    @relation(fields: [itemTypeId], references: [id])
   supplier       Supplier     @relation(fields: [supplierId], references: [id])
+}
+
+model InfoStock {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  transactionId   String?      @unique
+  itemId          Int?         @unique
+  startStock      Int
+  endStock        Int
+  startAmmount    Int
+  stockIn         Int
+  stockInAmmount  Int
+  stockOut        Int
+  stockOutAmmount Int
+  stockTotal      Int
+  ammountTotal    Int
+  item            Item?        @relation(fields: [itemId], references: [id])
+  transaction     Transaction? @relation(fields: [transactionId], references: [id])
 }
 
 model ItemCategory {
@@ -44,7 +64,6 @@ model Supplier {
   items        Item[]
 }
 
-// Item id set jadi many
 model Transaction {
   id            String            @id @default(uuid())
   itemId        Int
@@ -54,6 +73,7 @@ model Transaction {
   updatedAt     DateTime          @updatedAt
   paymentTypeId Int
   statusId      Int
+  infoStock     InfoStock?
   payment       PaymentType       @relation(fields: [paymentTypeId], references: [id])
   status        TransactionStatus @relation(fields: [statusId], references: [id])
 }
