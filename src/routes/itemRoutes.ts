@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addNewItem,
+  addStock,
   deleteItem,
   getAllItems,
   getItemById,
@@ -17,5 +18,6 @@ routes
   .get("/:id", getItemById)
   .post("/", addNewItem)
   .patch("/:id", updateItem)
+  .patch("/add/:id", addStock)
   .delete("/:id", deleteItem);
 export default routes;

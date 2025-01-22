@@ -269,3 +269,54 @@ export const updateItem = async (req: Request, res: Response) => {
     res.status(500).json({ messege: error });
   }
 };
+
+export const addStock = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { stockIn } = req.body;
+
+    // Find coresponded item
+    const findItem = await prisma.item.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!findItem) res.status(404).json({ status: 404, messege: "Data not found" });
+
+    if (findItem && stockIn + findItem.currentStock > findItem.maxStock)
+      res
+        .status(400)
+        .json({ status: 400, messege: "Total stock can't be more than max stock" });
+
+    const addItemStock = await prisma.item.update({
+      where: { id: findItem?.id },
+      data: {
+        currentStock: findItem?.currentStock + stockIn,
+      },
+    });
+
+    // Add new info stock
+    const newInfoStockData = await prisma.infoStock.create({
+      data: {
+        itemId: addItemStock.id,
+        startStock: findItem ? findItem.currentStock : 0,
+        endStock: findItem?.currentStock + stockIn,
+        startAmmount: findItem ? findItem.currentStock * findItem.wacc : 0,
+        stockIn,
+        stockInAmmount: stockIn * addItemStock.wacc,
+        stockOut: 0,
+        stockOutAmmount: 0,
+        stockTotal: addItemStock.currentStock,
+        ammountTotal: addItemStock.currentStock * addItemStock.wacc,
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      messege: `Successfully add stock to ${addItemStock.itemName}`,
+      data: { ...addItemStock, newInfoStockData },
+    });
+  } catch (error) {
+    console.dir(error);
+    res.status(500).json({ messege: error });
+  }
+};
