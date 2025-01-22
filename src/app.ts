@@ -6,7 +6,7 @@ import itemRoutes from "./routes/itemRoutes";
 const app: Application = express();
 dotenv.config();
 
-const PORT: string | number = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 
 // Update later
 app.use(cors());

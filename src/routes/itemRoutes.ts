@@ -4,6 +4,7 @@ import {
   deleteItem,
   getAllItems,
   getItemById,
+  updateItem,
 } from "../controllers/itemsController";
 import multer from "multer";
 
@@ -15,6 +16,6 @@ routes
   .get("/", getAllItems)
   .get("/:id", getItemById)
   .post("/", addNewItem)
+  .patch("/:id", updateItem)
   .delete("/:id", deleteItem);
-// routes.get("/:id", getItemById);
 export default routes;

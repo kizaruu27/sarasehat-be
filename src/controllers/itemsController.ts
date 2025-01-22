@@ -25,6 +25,7 @@ export const getItemById = async (req: Request, res: Response) => {
       select: {
         id: true,
         itemName: true,
+        itemCode: true,
         createdAt: true,
         updatedAt: true,
         minStock: true,
@@ -183,6 +184,77 @@ export const deleteItem = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ status: 200, messege: "Successfully delete item" });
+  } catch (error) {
+    res.status(500).json({ messege: error });
+  }
+};
+
+export const updateItem = async (req: Request, res: Response) => {
+  try {
+    const { itemName, minStock, maxStock, wacc, itemCategoryId, itemTypeId, supplierId } =
+      req.body;
+
+    const { id } = req.params;
+
+    // Find data
+    const findItem = await prisma.item.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        itemCategoryId: true,
+        currentStock: true,
+        sellingPrice: true,
+        infoStock: true,
+      },
+    });
+
+    // Validate data
+    if (!findItem) res.status(404).json({ status: 404, messege: "Item data not found!" });
+
+    // Selling Price
+    const percentage = 18 / 100;
+    const sellingPrice = wacc * percentage;
+
+    // Item code
+    const prefix = Number(itemCategoryId) === 1 ? "OBT" : "ALK";
+    const lastItem = await prisma.item.findFirst({
+      where: {
+        itemCode: { startsWith: prefix },
+      },
+      orderBy: {
+        itemCode: "desc",
+      },
+    });
+    const nextNumber = lastItem ? parseInt(lastItem.itemCode.replace(prefix, "")) + 1 : 1;
+    const itemCode =
+      itemCategoryId && itemCategoryId !== findItem?.itemCategoryId
+        ? `${prefix}${nextNumber.toString().padStart(4, "0")}`
+        : undefined;
+
+    // Update item
+    const updateItem = await prisma.item.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        itemName,
+        ...(itemCode ? { itemCode: itemCode } : {}),
+        minStock,
+        maxStock,
+        wacc,
+        sellingPrice,
+        ...(itemCategoryId ? { itemCategoryId: itemCategoryId } : {}),
+        itemTypeId,
+        supplierId,
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      messege: "Successfully update item",
+      data: updateItem,
+    });
   } catch (error) {
     res.status(500).json({ messege: error });
   }
