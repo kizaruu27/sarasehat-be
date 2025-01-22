@@ -75,6 +75,7 @@ export const addNewItem = async (req: Request, res: Response) => {
       itemCategoryId,
       itemTypeId,
       supplierId,
+      supplierName,
     } = req.body;
 
     // Validate current stock with min and max stock
@@ -105,6 +106,15 @@ export const addNewItem = async (req: Request, res: Response) => {
     const nextNumber = lastItem ? parseInt(lastItem.itemCode.replace(prefix, "")) + 1 : 1;
     const itemCode = `${prefix}${nextNumber.toString().padStart(4, "0")}`;
 
+    // Validate supplier
+    const newSupplier = !supplierId
+      ? await prisma.supplier.create({
+          data: {
+            supplierName,
+          },
+        })
+      : undefined;
+
     // Create new item
     const postItem = await prisma.item.create({
       data: {
@@ -117,7 +127,7 @@ export const addNewItem = async (req: Request, res: Response) => {
         sellingPrice,
         itemCategoryId: Number(itemCategoryId),
         itemTypeId: itemCategoryId === 1 ? Number(itemTypeId) : null,
-        supplierId: Number(supplierId),
+        supplierId: newSupplier ? newSupplier.id : Number(supplierId),
       },
     });
 
