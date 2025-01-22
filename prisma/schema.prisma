@@ -8,30 +8,31 @@ datasource db {
 }
 
 model Item {
-  id             Int          @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   itemName       String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  itemCode       String       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  itemCode       String        @unique
   minStock       Int
   maxStock       Int
   currentStock   Int
-  wacc           Int
-  sellingPrice   Int
+  wacc           Float
+  sellingPrice   Float
   itemCategoryId Int
   itemTypeId     Int?
   supplierId     Int
+  lastStock      Int
   infoStock      InfoStock[]
-  itemCategory   ItemCategory @relation(fields: [itemCategoryId], references: [id])
-  itemType       itemType?    @relation(fields: [itemTypeId], references: [id])
-  supplier       Supplier     @relation(fields: [supplierId], references: [id])
+  cart Cart?
+  itemCategory   ItemCategory  @relation(fields: [itemCategoryId], references: [id])
+  itemType       itemType?     @relation(fields: [itemTypeId], references: [id])
+  supplier       Supplier      @relation(fields: [supplierId], references: [id])
 }
 
 model InfoStock {
-  id              Int          @id @default(autoincrement())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  transactionId   String?
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   itemId          Int?
   startStock      Int
   endStock        Int
@@ -42,8 +43,7 @@ model InfoStock {
   stockOutAmmount Int
   stockTotal      Int
   ammountTotal    Int
-  item            Item?        @relation(fields: [itemId], references: [id])
-  transaction     Transaction? @relation(fields: [transactionId], references: [id])
+  item            Item?    @relation(fields: [itemId], references: [id])
 }
 
 model ItemCategory {
@@ -66,16 +66,25 @@ model Supplier {
 
 model Transaction {
   id            String            @id @default(uuid())
-  itemId        Int
-  infoStockId   Int
-  totalPrice    Int
+  totalPrice    Float
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   paymentTypeId Int
   statusId      Int
-  infoStock     InfoStock[]
+  carts Cart[]
   payment       PaymentType       @relation(fields: [paymentTypeId], references: [id])
   status        TransactionStatus @relation(fields: [statusId], references: [id])
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+  qty Int
+  statusId Int
+  itemId Int? @unique
+  transactionId String?
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  status TransactionStatus @relation(fields: [statusId], references: [id])
+  item Item? @relation(fields: [itemId], references: [id])
 }
 
 model PaymentType {
@@ -88,4 +97,5 @@ model TransactionStatus {
   id           Int           @id @default(autoincrement())
   status       String
   transactions Transaction[]
+  carts  Cart[]
 }

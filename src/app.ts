@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import itemRoutes from "./routes/itemRoutes";
+import transactionRoutes from "./routes/transactionRoutes";
 
 const app: Application = express();
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/items", itemRoutes);
+app.use("/transaction", transactionRoutes);
 
 // Endpoint you'll always need for
 app.get("/ping", (req: Request, res: Response) => {

@@ -6,7 +6,36 @@ const prisma = new PrismaClient();
 
 export const getAllItems = async (req: Request, res: Response) => {
   try {
-    const items = await prisma.item.findMany();
+    const items = await prisma.item.findMany({
+      select: {
+        id: true,
+        itemName: true,
+        itemCode: true,
+        createdAt: true,
+        updatedAt: true,
+        minStock: true,
+        maxStock: true,
+        currentStock: true,
+        wacc: true,
+        sellingPrice: true,
+        itemCategory: {
+          select: {
+            category: true,
+          },
+        },
+        itemType: {
+          select: {
+            type: true,
+          },
+        },
+        supplier: {
+          select: {
+            supplierName: true,
+          },
+        },
+        infoStock: true,
+      },
+    });
     res
       .status(200)
       .json({ status: 200, messege: "Succesfully get all items", data: items });
@@ -30,6 +59,7 @@ export const getItemById = async (req: Request, res: Response) => {
         updatedAt: true,
         minStock: true,
         maxStock: true,
+        lastStock: true,
         currentStock: true,
         wacc: true,
         sellingPrice: true,
@@ -91,7 +121,8 @@ export const addNewItem = async (req: Request, res: Response) => {
         .json({ status: 400, messege: "Stock can't be more than max stock" });
 
     // Selling Price
-    const sellingPrice = (wacc * 18) / 100;
+    const percentage = 18 / 100;
+    const sellingPrice = wacc * percentage;
 
     // Item Code
     const prefix = Number(itemCategoryId) === 1 ? "OBT" : "ALK";
@@ -120,14 +151,15 @@ export const addNewItem = async (req: Request, res: Response) => {
       data: {
         itemName,
         itemCode,
-        minStock: Number(minStock),
-        maxStock: Number(maxStock),
-        currentStock: Number(stockIn),
-        wacc: Number(wacc),
+        lastStock: 0,
+        minStock,
+        maxStock,
+        currentStock: stockIn,
+        wacc,
         sellingPrice,
-        itemCategoryId: Number(itemCategoryId),
-        itemTypeId: itemCategoryId === 1 ? Number(itemTypeId) : null,
-        supplierId: newSupplier ? newSupplier.id : Number(supplierId),
+        itemCategoryId,
+        itemTypeId: itemCategoryId === 1 ? itemTypeId : null,
+        supplierId: newSupplier ? newSupplier.id : supplierId,
       },
     });
 
@@ -156,6 +188,7 @@ export const addNewItem = async (req: Request, res: Response) => {
         itemName: true,
         itemCode: true,
         minStock: true,
+        lastStock: true,
         currentStock: true,
         wacc: true,
         sellingPrice: true,
@@ -201,7 +234,7 @@ export const deleteItem = async (req: Request, res: Response) => {
 
 export const updateItem = async (req: Request, res: Response) => {
   try {
-    const { itemName, minStock, maxStock, wacc, itemCategoryId, itemTypeId, supplierId } =
+    const { itemName, minStock, maxStock, itemCategoryId, itemTypeId, supplierId } =
       req.body;
 
     const { id } = req.params;
@@ -221,10 +254,6 @@ export const updateItem = async (req: Request, res: Response) => {
 
     // Validate data
     if (!findItem) res.status(404).json({ status: 404, messege: "Item data not found!" });
-
-    // Selling Price
-    const percentage = 18 / 100;
-    const sellingPrice = wacc * percentage;
 
     // Item code
     const prefix = Number(itemCategoryId) === 1 ? "OBT" : "ALK";
@@ -252,8 +281,6 @@ export const updateItem = async (req: Request, res: Response) => {
         ...(itemCode ? { itemCode: itemCode } : {}),
         minStock,
         maxStock,
-        wacc,
-        sellingPrice,
         ...(itemCategoryId ? { itemCategoryId: itemCategoryId } : {}),
         itemTypeId,
         supplierId,
@@ -276,44 +303,51 @@ export const addStock = async (req: Request, res: Response) => {
     const { stockIn } = req.body;
 
     // Find coresponded item
-    const findItem = await prisma.item.findUnique({
+    const previousItemData = await prisma.item.findUnique({
       where: { id: Number(id) },
     });
 
-    if (!findItem) res.status(404).json({ status: 404, messege: "Data not found" });
+    if (!previousItemData)
+      res.status(404).json({ status: 404, messege: "Data not found" });
 
-    if (findItem && stockIn + findItem.currentStock > findItem.maxStock)
+    if (
+      previousItemData &&
+      stockIn + previousItemData.currentStock > previousItemData.maxStock
+    )
       res
         .status(400)
         .json({ status: 400, messege: "Total stock can't be more than max stock" });
 
-    const addItemStock = await prisma.item.update({
-      where: { id: findItem?.id },
+    const newItemData = await prisma.item.update({
+      where: { id: previousItemData?.id },
       data: {
-        currentStock: findItem?.currentStock + stockIn,
+        lastStock: previousItemData?.currentStock,
+        currentStock: previousItemData?.currentStock + stockIn,
       },
     });
 
     // Add new info stock
     const newInfoStockData = await prisma.infoStock.create({
       data: {
-        itemId: addItemStock.id,
-        startStock: findItem ? findItem.currentStock : 0,
-        endStock: findItem?.currentStock + stockIn,
-        startAmmount: findItem ? findItem.currentStock * findItem.wacc : 0,
+        itemId: newItemData.id,
+        startStock: previousItemData ? previousItemData.currentStock : 0,
+        endStock: previousItemData?.currentStock + stockIn,
+        startAmmount: previousItemData
+          ? previousItemData.currentStock * previousItemData.wacc
+          : 0,
         stockIn,
-        stockInAmmount: stockIn * addItemStock.wacc,
+        stockInAmmount: stockIn * newItemData.wacc,
         stockOut: 0,
         stockOutAmmount: 0,
-        stockTotal: addItemStock.currentStock,
-        ammountTotal: addItemStock.currentStock * addItemStock.wacc,
+        stockTotal: newItemData.currentStock,
+        ammountTotal: newItemData.currentStock * newItemData.wacc,
       },
     });
 
     res.status(200).json({
       status: 200,
-      messege: `Successfully add stock to ${addItemStock.itemName}`,
-      data: { ...addItemStock, newInfoStockData },
+      messege: `Successfully add stock to ${newItemData.itemName}`,
+      data: { ...newItemData, newInfoStockData },
     });
   } catch (error) {
     console.dir(error);
