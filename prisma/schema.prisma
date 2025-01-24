@@ -23,7 +23,7 @@ model Item {
   supplierId     Int
   lastStock      Int
   infoStock      InfoStock[]
-  cart Cart?
+  cart Cart[]
   itemCategory   ItemCategory  @relation(fields: [itemCategoryId], references: [id])
   itemType       itemType?     @relation(fields: [itemTypeId], references: [id])
   supplier       Supplier      @relation(fields: [supplierId], references: [id])
@@ -80,7 +80,7 @@ model Cart {
   id Int @id @default(autoincrement())
   qty Int
   statusId Int
-  itemId Int? @unique
+  itemId Int?
   transactionId String?
   transaction Transaction? @relation(fields: [transactionId], references: [id])
   status TransactionStatus @relation(fields: [statusId], references: [id])

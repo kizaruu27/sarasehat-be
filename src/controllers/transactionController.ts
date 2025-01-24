@@ -20,8 +20,23 @@ export const createTransaction = async (req: Request, res: Response) => {
       },
     });
 
-    if (!carts || carts.length === 0)
+    if (!carts || carts.length === 0) {
       res.status(404).json({ status: 404, messege: "Cart not found!" });
+      return;
+    }
+
+    // Validate item stock
+    carts.forEach((data) => {
+      if (data.item) {
+        if (data.item.currentStock === 0) {
+          return res.status(400).json({ status: 400, messege: "Item stock is empty" });
+        }
+
+        if (data.item?.currentStock < data.qty) {
+          return res.status(400).json({ status: 400, messege: "Item stock unavailable" });
+        }
+      }
+    });
 
     // Calculate total price
     const cartsPrice = carts.map((data) => ({
@@ -66,7 +81,6 @@ export const createTransaction = async (req: Request, res: Response) => {
               currentStock: {
                 decrement: data.qty,
               },
-              lastStock: item.currentStock,
             },
           });
         }
@@ -173,6 +187,28 @@ export const createTransaction = async (req: Request, res: Response) => {
 export const createCart = async (req: Request, res: Response) => {
   try {
     const { qty, itemId } = req.body;
+
+    // Validate item stock
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+    });
+
+    if (item) {
+      if (item?.currentStock === 0) {
+        res.status(400).json({ status: 400, messege: "Stock is empty" });
+        return;
+      }
+
+      if (item?.currentStock < qty) {
+        res
+          .status(400)
+          .json({ status: 400, messege: "Qty cannot be more than current stock!" });
+        return;
+      }
+    } else {
+      res.status(404).json({ status: 404, messege: "Item not found!" });
+      return;
+    }
 
     const cart = await prisma.cart.create({
       data: {
