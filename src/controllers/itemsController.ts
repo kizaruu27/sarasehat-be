@@ -6,40 +6,35 @@ const prisma = new PrismaClient();
 
 export const getAllItems = async (req: Request, res: Response) => {
   try {
-    const items = await prisma.item.findMany({
-      select: {
-        id: true,
-        itemName: true,
-        itemCode: true,
-        createdAt: true,
-        updatedAt: true,
-        minStock: true,
-        maxStock: true,
-        currentStock: true,
-        wacc: true,
-        sellingPrice: true,
-        itemCategory: {
-          select: {
-            category: true,
-          },
-        },
-        itemType: {
-          select: {
-            type: true,
-          },
-        },
-        supplier: {
-          select: {
-            supplierName: true,
-          },
-        },
+    const { itemCode, itemCategoryId, itemName } = req.query;
+
+    let filters: any = {};
+    if (itemCode) filters.itemCode = itemCode;
+    if (itemCategoryId) filters.itemCategoryId = Number(itemCategoryId);
+    if (itemName) filters.itemName = { contains: itemName, mode: "insensitive" };
+
+    const itemsData = await prisma.item.findMany({
+      where: filters,
+      include: {
         infoStock: true,
+        itemCategory: true,
+        itemType: true,
+        supplier: true,
       },
     });
-    res
-      .status(200)
-      .json({ status: 200, messege: "Succesfully get all items", data: items });
+
+    const sanitizedItems = itemsData.map(
+      ({ itemCategoryId, itemTypeId, supplierId, ...rest }) => rest
+    );
+
+    res.status(200).json({
+      status: 200,
+      messege: "Succesfully get all items",
+      totalData: itemsData.length,
+      data: sanitizedItems,
+    });
   } catch (error: any) {
+    console.log(error);
     res.status(500).json({ messege: error.messege });
   }
 };

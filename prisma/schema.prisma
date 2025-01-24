@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Item {
-  id             Int           @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   itemName       String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  itemCode       String        @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  itemCode       String       @unique
   minStock       Int
   maxStock       Int
   currentStock   Int
@@ -22,11 +22,11 @@ model Item {
   itemTypeId     Int?
   supplierId     Int
   lastStock      Int
+  cart           Cart[]
   infoStock      InfoStock[]
-  cart Cart[]
-  itemCategory   ItemCategory  @relation(fields: [itemCategoryId], references: [id])
-  itemType       itemType?     @relation(fields: [itemTypeId], references: [id])
-  supplier       Supplier      @relation(fields: [supplierId], references: [id])
+  itemCategory   ItemCategory @relation(fields: [itemCategoryId], references: [id])
+  itemType       itemType?    @relation(fields: [itemTypeId], references: [id])
+  supplier       Supplier     @relation(fields: [supplierId], references: [id])
 }
 
 model InfoStock {
@@ -71,20 +71,20 @@ model Transaction {
   updatedAt     DateTime          @updatedAt
   paymentTypeId Int
   statusId      Int
-  carts Cart[]
+  carts         Cart[]
   payment       PaymentType       @relation(fields: [paymentTypeId], references: [id])
   status        TransactionStatus @relation(fields: [statusId], references: [id])
 }
 
 model Cart {
-  id Int @id @default(autoincrement())
-  qty Int
-  statusId Int
-  itemId Int?
+  id            Int               @id @default(autoincrement())
+  qty           Int
+  itemId        Int?
+  statusId      Int
   transactionId String?
-  transaction Transaction? @relation(fields: [transactionId], references: [id])
-  status TransactionStatus @relation(fields: [statusId], references: [id])
-  item Item? @relation(fields: [itemId], references: [id])
+  item          Item?             @relation(fields: [itemId], references: [id])
+  status        TransactionStatus @relation(fields: [statusId], references: [id])
+  transaction   Transaction?      @relation(fields: [transactionId], references: [id])
 }
 
 model PaymentType {
@@ -96,6 +96,6 @@ model PaymentType {
 model TransactionStatus {
   id           Int           @id @default(autoincrement())
   status       String
+  carts        Cart[]
   transactions Transaction[]
-  carts  Cart[]
 }
