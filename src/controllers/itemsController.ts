@@ -21,6 +21,9 @@ export const getAllItems = async (req: Request, res: Response) => {
         itemType: true,
         supplier: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const sanitizedItems = itemsData.map(
