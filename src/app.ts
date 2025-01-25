@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import itemRoutes from "./routes/itemRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
+import supplierRoutes from "./routes/supplierRoutes";
 
 const app: Application = express();
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/items", itemRoutes);
 app.use("/transaction", transactionRoutes);
+app.use("/supplier", supplierRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Sarasehat API");

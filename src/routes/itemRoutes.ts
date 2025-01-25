@@ -16,7 +16,7 @@ const routes = Router();
 routes
   .get("/", getAllItems)
   .get("/:id", getItemById)
-  .post("/", addNewItem)
+  .post("/", upload.none(), addNewItem)
   .patch("/:id", updateItem)
   .patch("/add/:id", addStock)
   .delete("/:id", deleteItem);

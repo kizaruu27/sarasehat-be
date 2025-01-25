@@ -104,20 +104,23 @@ export const addNewItem = async (req: Request, res: Response) => {
     } = req.body;
 
     // Validate current stock with min and max stock
-    if (stockIn < minStock) {
+    if (Number(stockIn) < Number(minStock)) {
       res
         .status(400)
         .json({ status: 400, messege: "Stock can't be lower than minimum stock" });
+      return;
     }
 
-    if (stockIn > maxStock)
+    if (Number(stockIn) > Number(maxStock)) {
       res
         .status(400)
         .json({ status: 400, messege: "Stock can't be more than max stock" });
+      return;
+    }
 
     // Selling Price
     const percentage = 18 / 100;
-    const sellingPrice = wacc * percentage;
+    const sellingPrice = Number(wacc) * percentage;
 
     // Item Code
     const prefix = Number(itemCategoryId) === 1 ? "OBT" : "ALK";
@@ -147,14 +150,14 @@ export const addNewItem = async (req: Request, res: Response) => {
         itemName,
         itemCode,
         lastStock: 0,
-        minStock,
-        maxStock,
-        currentStock: stockIn,
-        wacc,
+        minStock: Number(minStock),
+        maxStock: Number(maxStock),
+        currentStock: Number(stockIn),
+        wacc: Number(wacc),
         sellingPrice,
-        itemCategoryId,
-        itemTypeId: itemCategoryId === 1 ? itemTypeId : null,
-        supplierId: newSupplier ? newSupplier.id : supplierId,
+        itemCategoryId: Number(itemCategoryId),
+        itemTypeId: Number(itemCategoryId) === 1 ? Number(itemTypeId) : null,
+        supplierId: newSupplier ? newSupplier.id : Number(supplierId),
       },
     });
 
@@ -163,14 +166,14 @@ export const addNewItem = async (req: Request, res: Response) => {
       data: {
         itemId: postItem.id,
         startStock: 0,
-        endStock: stockIn,
+        endStock: Number(stockIn),
         startAmmount: 0,
-        stockIn: stockIn,
-        stockInAmmount: stockIn * wacc,
+        stockIn: Number(stockIn),
+        stockInAmmount: Number(stockIn) * Number(wacc),
         stockOut: 0,
         stockOutAmmount: 0,
-        stockTotal: stockIn,
-        ammountTotal: stockIn * wacc,
+        stockTotal: Number(stockIn),
+        ammountTotal: Number(stockIn) * Number(wacc),
       },
     });
 
