@@ -10,8 +10,7 @@
     "dev": "nodemon --watch src --exec ts-node src/app.ts",
     "start": "node dist/app.js",
     "prisma studio": "npx prisma studio",
-    "migrate": "npx prisma migrate dev",
-    "vercel-build": "prisma generate && prisma migrate deploy && tsc"
+    "migrate": "npx prisma migrate dev"
   },
   "author": "Dionovan Ramadhani",
   "license": "ISC",
