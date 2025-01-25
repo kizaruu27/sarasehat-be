@@ -49,34 +49,11 @@ export const getItemById = async (req: Request, res: Response) => {
       where: {
         id: Number(id),
       },
-      select: {
-        id: true,
-        itemName: true,
-        itemCode: true,
-        createdAt: true,
-        updatedAt: true,
-        minStock: true,
-        maxStock: true,
-        lastStock: true,
-        currentStock: true,
-        wacc: true,
-        sellingPrice: true,
-        itemCategory: {
-          select: {
-            category: true,
-          },
-        },
-        itemType: {
-          select: {
-            type: true,
-          },
-        },
-        supplier: {
-          select: {
-            supplierName: true,
-          },
-        },
+      include: {
         infoStock: true,
+        itemCategory: true,
+        itemType: true,
+        supplier: true,
       },
     });
 
