@@ -17,6 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/items", itemRoutes);
 app.use("/transaction", transactionRoutes);
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("Sarasehat API");
+});
+
 // Endpoint you'll always need for
 app.get("/ping", (req: Request, res: Response) => {
   res.status(200).json({ messege: "pong" });
