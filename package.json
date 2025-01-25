@@ -6,9 +6,12 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --watch src --exec ts-node src/app.ts",
+    "build": "prisma generate && prisma migrate deploy && tsc",
+    "dev": "nodemon --watch src --exec ts-node src/app.ts",
+    "start": "node dist/app.js",
     "prisma studio": "npx prisma studio",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "vercel-build": "prisma generate && prisma migrate deploy && tsc"
   },
   "author": "Dionovan Ramadhani",
   "license": "ISC",
