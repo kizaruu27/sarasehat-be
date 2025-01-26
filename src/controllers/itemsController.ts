@@ -221,6 +221,7 @@ export const updateItem = async (req: Request, res: Response) => {
       supplierId,
       currentStock,
       supplierName,
+      wacc,
     } = req.body;
 
     const { id } = req.params;
@@ -285,6 +286,7 @@ export const updateItem = async (req: Request, res: Response) => {
         ...(Number(itemCategoryId) ? { itemCategoryId: Number(itemCategoryId) } : {}),
         itemTypeId: Number(newItemTypeId) ? Number(newItemTypeId) : null,
         supplierId: Number(supplierId) ? Number(supplierId) : newSupplier?.id,
+        wacc: Number(wacc),
       },
     });
 
