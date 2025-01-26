@@ -212,8 +212,16 @@ export const deleteItem = async (req: Request, res: Response) => {
 
 export const updateItem = async (req: Request, res: Response) => {
   try {
-    const { itemName, minStock, maxStock, itemCategoryId, itemTypeId, supplierId } =
-      req.body;
+    const {
+      itemName,
+      minStock,
+      maxStock,
+      itemCategoryId,
+      itemTypeId,
+      supplierId,
+      currentStock,
+      supplierName,
+    } = req.body;
 
     const { id } = req.params;
 
@@ -231,7 +239,10 @@ export const updateItem = async (req: Request, res: Response) => {
     });
 
     // Validate data
-    if (!findItem) res.status(404).json({ status: 404, messege: "Item data not found!" });
+    if (!findItem) {
+      res.status(404).json({ status: 404, messege: "Item data not found!" });
+      return;
+    }
 
     // Item code
     const prefix = Number(itemCategoryId) === 1 ? "OBT" : "ALK";
@@ -249,6 +260,17 @@ export const updateItem = async (req: Request, res: Response) => {
         ? `${prefix}${nextNumber.toString().padStart(4, "0")}`
         : undefined;
 
+    const newItemTypeId = Number(itemCategoryId) === 1 ? Number(itemTypeId) : undefined;
+
+    // Create new supplier
+    const newSupplier = supplierName
+      ? await prisma.supplier.create({
+          data: {
+            supplierName,
+          },
+        })
+      : undefined;
+
     // Update item
     const updateItem = await prisma.item.update({
       where: {
@@ -257,11 +279,12 @@ export const updateItem = async (req: Request, res: Response) => {
       data: {
         itemName,
         ...(itemCode ? { itemCode: itemCode } : {}),
-        minStock,
-        maxStock,
-        ...(itemCategoryId ? { itemCategoryId: itemCategoryId } : {}),
-        itemTypeId,
-        supplierId,
+        minStock: Number(minStock),
+        maxStock: Number(maxStock),
+        currentStock: Number(currentStock),
+        ...(Number(itemCategoryId) ? { itemCategoryId: Number(itemCategoryId) } : {}),
+        itemTypeId: Number(newItemTypeId) ? Number(newItemTypeId) : null,
+        supplierId: Number(supplierId) ? Number(supplierId) : newSupplier?.id,
       },
     });
 
@@ -271,6 +294,7 @@ export const updateItem = async (req: Request, res: Response) => {
       data: updateItem,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ messege: error });
   }
 };

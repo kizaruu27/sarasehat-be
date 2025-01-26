@@ -17,7 +17,7 @@ routes
   .get("/", getAllItems)
   .get("/:id", getItemById)
   .post("/", upload.none(), addNewItem)
-  .patch("/:id", updateItem)
+  .patch("/:id", upload.none(), updateItem)
   .patch("/add/:id", addStock)
   .delete("/:id", deleteItem);
 export default routes;
