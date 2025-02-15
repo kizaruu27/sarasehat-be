@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { stat } from "fs";
 const prisma = new PrismaClient();
 
+// Transaction
 export const createTransaction = async (req: Request, res: Response) => {
   try {
     const { paymentTypeId, statusId, cartIds } = req.body;
@@ -184,6 +185,7 @@ export const createTransaction = async (req: Request, res: Response) => {
   }
 };
 
+// Cart
 export const createCart = async (req: Request, res: Response) => {
   try {
     const { qty, itemId } = req.body;
@@ -227,8 +229,18 @@ export const createCart = async (req: Request, res: Response) => {
 };
 
 export const getAllCart = async (req: Request, res: Response) => {
+  const { status } = req.query;
+
+  const filters: any = {};
+  if (status) {
+    if (status === "cancel") filters.statusId = 1;
+    if (status === "pending") filters.statusId = 2;
+    if (status === "success") filters.statusId = 3;
+  }
+
   try {
     const carts = await prisma.cart.findMany({
+      where: filters,
       select: {
         id: true,
         qty: true,
@@ -242,10 +254,61 @@ export const getAllCart = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json({ status: 200, messege: "Successfull get carts data", data: carts });
+    res.status(200).json({
+      status: 200,
+      total: carts.length,
+      messege: "Successfull get carts data",
+      data: carts,
+    });
   } catch (error) {
     res.status(500).json({ messege: error });
+    console.log(error);
+  }
+};
+
+export const deleteCart = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const deletedCarts = await prisma.cart.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      messege: `Successfully delete cart on id ${deletedCarts.id}`,
+    });
+  } catch (error) {
+    res.status(500).json({ messege: error });
+    console.log(error);
+  }
+};
+
+export const editCart = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { qty } = req.body;
+
+    const updatedCartQty = await prisma.cart.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        qty,
+      },
+    });
+
+    res
+      .status(200)
+      .json({
+        status: 200,
+        messege: `Successfully update cart on id ${updatedCartQty.id}`,
+        updatedCart: updatedCartQty,
+      });
+  } catch (error) {
+    res.status(500).json({ status: 500, messege: error });
+    console.log(error);
   }
 };
