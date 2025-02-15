@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { stat } from "fs";
 const prisma = new PrismaClient();
 
 // Transaction
@@ -300,13 +299,11 @@ export const editCart = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        status: 200,
-        messege: `Successfully update cart on id ${updatedCartQty.id}`,
-        updatedCart: updatedCartQty,
-      });
+    res.status(200).json({
+      status: 200,
+      messege: `Successfully update cart on id ${updatedCartQty.id}`,
+      updatedCart: updatedCartQty,
+    });
   } catch (error) {
     res.status(500).json({ status: 500, messege: error });
     console.log(error);

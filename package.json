@@ -10,7 +10,9 @@
     "dev": "nodemon --watch src --exec ts-node src/app.ts",
     "start": "node dist/app.js",
     "prisma studio": "npx prisma studio",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "reset-all": "npx ts-node prisma/scripts/resetAllTable.ts",
+    "init-data": "npx ts-node prisma/scripts/init.ts"
   },
   "author": "Dionovan Ramadhani",
   "license": "ISC",
