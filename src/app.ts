@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import itemRoutes from "./routes/itemRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
 import supplierRoutes from "./routes/supplierRoutes";
+import categoryRoutes from "./routes/categoryRoutes";
+import itemTypeRoutes from "./routes/itemTypeRoutes";
 
 const app: Application = express();
 dotenv.config();
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/items", itemRoutes);
 app.use("/transaction", transactionRoutes);
 app.use("/supplier", supplierRoutes);
+app.use("/category", categoryRoutes);
+app.use("/item-types", itemTypeRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Sarasehat API");
