@@ -184,6 +184,32 @@ export const createTransaction = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllTransaction = async (req: Request, res: Response) => {
+  try {
+    const data = await prisma.transaction.findMany({
+      include: {
+        payment: true,
+        status: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const transactions = data.map(({ paymentTypeId, statusId, ...rest }) => rest);
+
+    res.status(200).json({
+      status: 200,
+      messege: "successfully get all transaction data",
+      total: transactions.length,
+      data: transactions,
+    });
+  } catch (error) {
+    res.status(500).json({ messege: error });
+    console.log(error);
+  }
+};
+
 // Cart
 export const createCart = async (req: Request, res: Response) => {
   try {

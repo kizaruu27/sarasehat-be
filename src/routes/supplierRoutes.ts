@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getAllSupplier } from "../controllers/supplierController";
+import { createSupplier, getAllSupplier } from "../controllers/supplierController";
 const routes = Router();
 
-routes.get("/", getAllSupplier);
+routes.get("/", getAllSupplier).post("/", createSupplier);
 
 export default routes;

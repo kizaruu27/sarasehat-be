@@ -5,10 +5,12 @@ import {
   deleteCart,
   editCart,
   getAllCart,
+  getAllTransaction,
 } from "../controllers/transactionController";
 const routes = Router();
 
 routes
+  .get("/", getAllTransaction)
   .get("/cart", getAllCart)
   .post("/", createTransaction)
   .post("/cart", createCart)
